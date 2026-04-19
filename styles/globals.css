@@ -8,7 +8,7 @@ html, body { background: var(--color-bg); color: var(--color-text-primary); font
 ::selection { background: rgba(0,229,255,0.25); }
 :focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-.text-hero { font-family: var(--font-display); font-size: clamp(3.5rem,9vw,8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 0.92; }
+.text-hero { font-family: var(--font-display); font-size: clamp(2.5rem, 10vw, 8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 0.92; }
 .text-section { font-family: var(--font-display); font-size: clamp(2rem,5vw,4.5rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
 .text-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-tertiary); }
 .text-body { font-size: 1rem; line-height: 1.7; color: var(--color-text-secondary); }

@@ -41,11 +41,23 @@ export default function FrameSequence({ frameCount = 204, basePath = '/frames/' 
       const ctx = canvas.getContext('2d')
       if (!ctx) return
       const dpr = window.devicePixelRatio || 1
-      canvas.width = window.innerWidth * dpr
-      canvas.height = window.innerHeight * dpr
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      canvas.width = vw * dpr
+      canvas.height = vh * dpr
       ctx.scale(dpr, dpr)
       const bitmap = frameMap.current.get(index)
-      if (bitmap) ctx.drawImage(bitmap, 0, 0, window.innerWidth, window.innerHeight)
+      if (bitmap) {
+        const sw = bitmap.width
+        const sh = bitmap.height
+        const sRatio = sw / sh
+        const vRatio = vw / vh
+        let dx, dy, dw, dh
+        if (sRatio > vRatio) { dh = vh; dw = vh * sRatio; dx = (vw - dw) / 2; dy = 0 }
+        else { dw = vw; dh = vw / sRatio; dx = 0; dy = (vh - dh) / 2 }
+        ctx.clearRect(0, 0, vw, vh)
+        ctx.drawImage(bitmap, dx, dy, dw, dh)
+      }
     }
     const setupScrollTrigger = () => {
       ScrollTrigger.create({

@@ -18,11 +18,11 @@ export default function Hero() {
         <FrameSequence />
       </div>
       
-      <div ref={contentRef} style={{ position:'relative', zIndex:10, height:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'0 32px', pointerEvents:'none' }}>
-        <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.75rem', letterSpacing:'0.3em', color:'var(--accent-cyan)', marginBottom:'24px', textTransform:'uppercase' }}>// INITIALIZING SEQUENCE</div>
-        <h1 className="text-hero" style={{ marginBottom:'32px', maxWidth:'1000px' }}>TRANSFORMER <br/> SEQUENCE</h1>
-        <p className="text-body" style={{ maxWidth:'600px', marginBottom:'48px', color:'var(--color-text-secondary)' }}>
-          The world's first zero-latency scroll-driven canvas engine.<br/>Built for high-precision cinematic storytelling.
+      <div ref={contentRef} style={{ position:'relative', zIndex:10, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'0 24px', pointerEvents:'none' }}>
+        <div style={{ fontFamily:'var(--font-mono)', fontSize:'min(0.75rem, 3vw)', letterSpacing:'0.3em', color:'var(--accent-cyan)', marginBottom:'24px', textTransform:'uppercase' }}>// INITIALIZING SEQUENCE</div>
+        <h1 className="text-hero" style={{ marginBottom:'32px', maxWidth:'min(1000px, 100%)', width:'100%' }}>TRANSFORMER <br/> SEQUENCE</h1>
+        <p className="text-body" style={{ maxWidth:'600px', marginBottom:'48px', color:'var(--color-text-secondary)', fontSize:'clamp(0.9rem, 2vw, 1.1rem)' }}>
+          The world's first zero-latency scroll-driven canvas engine.<br className="hidden sm:block"/> Built for high-precision cinematic storytelling.
         </p>
         <div className="cta-group" style={{ display:'flex', gap:'16px', pointerEvents:'auto' }}>
           <Button variant="outline" data-cursor="cta" onClick={() => document.getElementById('problem')?.scrollIntoView({ behavior:'smooth' })}>EXPLORE ENGINE</Button>
