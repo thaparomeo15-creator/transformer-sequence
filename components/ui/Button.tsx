@@ -1,14 +1,14 @@
 'use client'
 import { useState } from 'react'
 import { playTick } from '@/lib/audio'
-interface ButtonProps { children: React.ReactNode; onClick?: () => void; variant?: 'outline'|'solid'|'ghost'; loading?: boolean; className?: string; 'data-cursor-label'?: string }
+interface ButtonProps { children: React.ReactNode; onClick?: () => void; variant?: 'outline'|'solid'|'ghost'; loading?: boolean; className?: string; 'data-cursor-label'?: string; style?: React.CSSProperties }
 export default function Button({ children, onClick, variant='outline', loading=false, className='', ...props }: ButtonProps) {
   const [active, setActive] = useState(false)
   const base: React.CSSProperties = { fontFamily:'var(--font-mono)', fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', padding:'14px 32px', borderRadius:'var(--radius-sm)', position:'relative', overflow:'hidden', cursor:'pointer', transition:'all 0.3s var(--ease-out-expo)', border:'1px solid var(--glass-border)', background:'transparent', color:'var(--color-text-primary)', display:'inline-flex', alignItems:'center', gap:'8px' }
   return (
     <button 
       {...props}
-      style={{ ...base, opacity: loading ? 0.6 : 1, transform: active ? 'scale(0.97)' : 'scale(1)' }}
+      style={{ ...base, ...props.style, opacity: loading ? 0.6 : 1, transform: active ? 'scale(0.97)' : 'scale(1)' }}
       onMouseEnter={() => playTick()}
       onMouseDown={() => setActive(true)}
       onMouseUp={() => setActive(false)}

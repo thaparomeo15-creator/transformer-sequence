@@ -11,5 +11,5 @@ self.onmessage = async (e: MessageEvent) => {
       self.postMessage({ type: 'PROGRESS', loaded: i + 1, total: urls.length })
     } catch { bitmaps.push(null as any) }
   }
-  self.postMessage({ type: 'COMPLETE', bitmaps }, bitmaps.filter(Boolean).map(b => b as any))
+  (self as any).postMessage({ type: 'COMPLETE', bitmaps }, bitmaps.filter(Boolean).map(b => b as any))
 }

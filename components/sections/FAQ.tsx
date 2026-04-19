@@ -21,7 +21,7 @@ export default function FAQ() {
                 style={{ width:'100%', padding:'24px 32px', background:'none', border:'none', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', textAlign:'left' }}
               >
                 <span style={{ fontSize:'1rem', fontWeight:600, color:'white' }}>{faq.q}</span>
-                <span style={{ color:'var(--accent-cyan)', fontSize:'1.2rem', transition:'transform 0.4s' }} style={{ transform: openIndex === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
+                <span style={{ color:'var(--accent-cyan)', fontSize:'1.2rem', transition:'transform 0.4s', transform: openIndex === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
               </button>
               <div style={{ maxHeight: openIndex === i ? '200px' : '0', overflow:'hidden', transition:'max-height 0.4s var(--ease-out-expo)' }}>
                 <div style={{ padding:'0 32px 32px 32px', color:'var(--color-text-secondary)', fontSize:'0.9rem', lineHeight:1.7 }}>
