@@ -1,34 +1,24 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
-
-const inputDir = path.join(__dirname, '../public/frames_raw'); // Assuming raw images are here
-const outputDir = path.join(__dirname, '../public/frames');
-
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
-
+import sharp from 'sharp'
+import fs from 'fs'
+import path from 'path'
+const inputDir = './public/raw-frames'
+const outputDir = './public/frames'
 async function optimize() {
-  const files = fs.readdirSync(inputDir).filter((f: string) => f.endsWith('.jpg') || f.endsWith('.png'));
-  
-  console.log(`Optimizing ${files.length} frames...`);
-  
-  for (const file of files) {
-    const name = path.parse(file).name;
-    await sharp(path.join(inputDir, file))
-      .webp({ quality: 82, effort: 6 })
-      .toFile(path.join(outputDir, `${name}.webp`));
-    
-    process.stdout.write('.');
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true })
+  if (!fs.existsSync(inputDir)) {
+    console.warn(`Input directory ${inputDir} not found. Skipping optimization.`)
+    return
   }
-  
-  console.log('\nOptimization complete.');
+  const files = fs.readdirSync(inputDir).filter(f => f.endsWith('.jpg') || f.endsWith('.png'))
+  console.log(`Optimizing ${files.length} images...`)
+  for (const file of files) {
+    const name = path.parse(file).name
+    await sharp(path.join(inputDir, file))
+      .resize(1920)
+      .webp({ quality: 80, effort: 6 })
+      .toFile(path.join(outputDir, `${name}.webp`))
+    console.log(`✓ ${file} → ${name}.webp`)
+  }
+  console.log('Optimization complete.')
 }
-
-// Check if input dir exists before running
-if (fs.existsSync(inputDir)) {
-  optimize();
-} else {
-  console.log('No raw frames found. Skipping optimization script.');
-}
+optimize()

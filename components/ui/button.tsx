@@ -1,43 +1,31 @@
-'use client';
-
-import { ReactNode } from 'react';
-import { GeistMono } from 'geist/font/mono';
-
-interface ButtonProps {
-  children: ReactNode;
-  onClick?: () => void;
-  className?: string;
-  variant?: 'primary' | 'outline' | 'ghost';
-  type?: 'button' | 'submit';
-  disabled?: boolean;
-}
-
-export default function Button({ children, onClick, className = '', variant = 'outline', type = 'button', disabled = false }: ButtonProps) {
-  const baseStyles = `relative overflow-hidden px-8 py-3.5 rounded-sm font-mono text-[0.7rem] tracking-[0.15em] uppercase font-bold transition-all duration-400 active:scale-[0.97] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
-  
-  const variants = {
-    primary: 'bg-white text-black hover:bg-[var(--accent-cyan)] border-white hover:border-[var(--accent-cyan)]',
-    outline: 'bg-transparent text-white border border-[var(--glass-border)] hover:border-[var(--accent-cyan)]',
-    ghost: 'bg-transparent text-white/60 hover:text-white border-none',
-  };
-
+'use client'
+import { useState } from 'react'
+import { playTick } from '@/lib/audio'
+interface ButtonProps { children: React.ReactNode; onClick?: () => void; variant?: 'outline'|'solid'|'ghost'; loading?: boolean; className?: string; 'data-cursor-label'?: string }
+export default function Button({ children, onClick, variant='outline', loading=false, className='', ...props }: ButtonProps) {
+  const [active, setActive] = useState(false)
+  const base: React.CSSProperties = { fontFamily:'var(--font-mono)', fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', padding:'14px 32px', borderRadius:'var(--radius-sm)', position:'relative', overflow:'hidden', cursor:'pointer', transition:'all 0.3s var(--ease-out-expo)', border:'1px solid var(--glass-border)', background:'transparent', color:'var(--color-text-primary)', display:'inline-flex', alignItems:'center', gap:'8px' }
   return (
     <button 
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      data-cursor={disabled ? 'default' : 'hover'}
-      className={`${GeistMono.className} ${baseStyles} ${variants[variant]} ${className} group`}
+      {...props}
+      style={{ ...base, opacity: loading ? 0.6 : 1, transform: active ? 'scale(0.97)' : 'scale(1)' }}
+      onMouseEnter={() => playTick()}
+      onMouseDown={() => setActive(true)}
+      onMouseUp={() => setActive(false)}
+      onClick={loading ? undefined : onClick}
+      disabled={loading}
+      className={`shimmer-btn ${className}`}
     >
-      <span className="relative z-10">{children}</span>
-      
-      {/* Shimmer Effect */}
-      <span className="absolute top-0 left-[-100%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-600 ease-[var(--ease-out-expo)] group-hover:left-[150%]" />
-      
-      {/* Glow Effect */}
-      {variant === 'primary' && (
-        <span className="absolute inset-0 bg-[var(--accent-cyan)] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-400" />
-      )}
+      {loading ? <span className="animate-spin">◌</span> : null}
+      {children}
+      <style jsx>{`
+        .shimmer-btn::after {
+          content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+          transition: all 0.6s var(--ease-out-expo);
+        }
+        .shimmer-btn:hover::after { left: 150%; }
+      `}</style>
     </button>
-  );
+  )
 }

@@ -1,130 +1,59 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import { gsap } from '@/lib/gsap';
-import Button from '@/components/ui/button';
-
+'use client'
+import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import WaitlistModal from '@/components/ui/WaitlistModal'
 const TIERS = [
-  {
-    name: 'PERSONAL',
-    price: '$59',
-    period: '/mo',
-    features: ['204 Frame Sequence', 'Standard License', 'Email Support', '1-Domain Activation'],
-    isPro: false
-  },
-  {
-    name: 'PRO',
-    price: '$149',
-    period: '/mo',
-    features: ['Unlimited Frames', 'Commercial License', 'Priority Support', 'Multi-Domain Activation', 'Custom Web Worker Support'],
-    isPro: true
-  },
-  {
-    name: 'ENTERPRISE',
-    price: 'CUSTOM',
-    period: '',
-    features: ['Full Source Access', 'Dedicated Engineer', 'Custom Engine Optimization', 'Global Deployment Support'],
-    isPro: false
-  }
-];
-
+  { id: 'personal', name: 'Personal', price: '$49', desc: 'Perfect for individual creators and high-end portfolios.', features: ['204 Frame Engine', 'Lenis & GSAP Core', 'Web Worker Architecture', 'Standard Support'] },
+  { id: 'pro', name: 'Professional', price: '$149', desc: 'Built for agencies and production-grade applications.', features: ['Unlimited Frames', 'Spline 3D Integration', 'Advanced Audio Engine', 'Priority Clearance', '24/7 Tech Support'] }
+]
 export default function Pricing() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    cardsRef.current.forEach((card, i) => {
-      if (!card) return;
-      
-      gsap.fromTo(card,
-        { scale: 0.94, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 1,
-          delay: i * 0.1,
-          ease: 'elastic.out(1, 0.8)',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 85%',
-          }
-        }
-      );
-    });
-  }, []);
-
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedTier, setSelectedTier] = useState('personal')
+  const openModal = (tier: string) => {
+    setSelectedTier(tier)
+    setModalOpen(true)
+  }
   return (
-    <section id="pricing" ref={containerRef} className="py-[var(--space-7)] bg-[var(--color-bg)] relative overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+    <section id="pricing" style={{ padding:'var(--space-7) 32px', background:'var(--color-bg-secondary)', position:'relative' }}>
+      <div style={{ maxWidth:'1200px', margin:'0 auto', textAlign:'center' }}>
+        <div className="text-label" style={{ marginBottom:'32px' }}>// SYSTEM ACQUISITION</div>
+        <h2 className="text-section" style={{ marginBottom:'64px' }}>Secure your license.</h2>
         
-        <div className="flex flex-col items-center text-center gap-6 mb-20">
-          <span className="text-label">SECTION 04 // ACCESS CONTROL</span>
-          <h2 className="text-section text-white max-w-2xl">
-            SECURE YOUR <br />
-            <span className="opacity-40">COMMERCIAL LICENSE.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {TIERS.map((tier, i) => (
-            <div 
-              key={tier.name}
-              ref={el => { cardsRef.current[i] = el; }}
-              data-cursor="hover"
-              className={`relative bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border border-[var(--glass-border)] rounded-lg p-10 flex flex-col transition-all duration-400 ${
-                tier.isPro ? 'border-[var(--accent-cyan)] shadow-[0_0_60px_var(--accent-glow)] scale-105 z-10' : ''
-              }`}
-            >
-              {tier.isPro && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--accent-cyan)] text-black font-mono text-[0.6rem] tracking-[0.2em] px-4 py-1 rounded-full font-bold">
-                  RECOMMENDED
+        <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'32px' }}>
+          {TIERS.map((tier) => (
+            <div key={tier.id} style={{ flex:'1 1 360px', maxWidth:'420px', background:'var(--color-bg)', border:'1px solid var(--glass-border)', borderRadius:'var(--radius-lg)', padding:'56px', textAlign:'left', display:'flex', flexDirection:'column', gap:'32px', transition:'border-color 0.3s' }} onMouseEnter={e => (e.currentTarget.style.borderColor='rgba(0,229,255,0.3)')} onMouseLeave={e => (e.currentTarget.style.borderColor='var(--glass-border)')}>
+              <div>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.75rem', color:'var(--accent-cyan)', marginBottom:'16px' }}>{tier.name}</div>
+                <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'16px' }}>
+                  <span style={{ fontSize:'3rem', fontWeight:700, color:'white' }}>{tier.price}</span>
+                  <span style={{ fontSize:'0.85rem', color:'var(--color-text-tertiary)' }}>/ LICENSE</span>
                 </div>
-              )}
-
-              <div className="mb-10">
-                <span className="text-label">{tier.name}</span>
-                <div className="mt-6 flex items-baseline gap-2">
-                  <span className="text-4xl font-display font-bold text-white">{tier.price}</span>
-                  <span className="text-sm font-mono text-white/40 uppercase">{tier.period}</span>
-                </div>
+                <p style={{ fontSize:'0.9rem', color:'var(--color-text-secondary)', lineHeight:1.6 }}>{tier.desc}</p>
               </div>
-
-              <ul className="flex flex-col gap-4 mb-12 flex-grow">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-white/60 font-display">
-                    <span className="w-1 h-1 bg-[var(--accent-cyan)] rounded-full" />
-                    {feature}
+              
+              <div style={{ height:'1px', background:'var(--color-border)' }} />
+              
+              <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:'16px', flexGrow:1 }}>
+                {tier.features.map((f, i) => (
+                  <li key={i} style={{ display:'flex', alignItems:'center', gap:'12px', fontSize:'0.85rem', color:'var(--color-text-secondary)' }}>
+                    <span style={{ color:'var(--accent-cyan)', fontSize:'0.6rem' }}>●</span> {f}
                   </li>
                 ))}
               </ul>
-
-              <Button 
-                variant={tier.isPro ? 'primary' : 'outline'} 
-                className="w-full"
-                onClick={() => {}} // Will trigger WaitlistModal
-              >
-                {tier.name === 'ENTERPRISE' ? 'CONTACT SALES' : 'AUTHORIZE ACCESS'}
+              
+              <Button variant={tier.id === 'pro' ? 'solid' : 'outline'} onClick={() => openModal(tier.id)} data-cursor="cta" style={{ width:'100%', justifyContent:'center' }}>
+                REQUEST ACCESS //
               </Button>
-
-              {tier.isPro && (
-                <div className="absolute inset-0 border border-[var(--accent-cyan)] rounded-lg pointer-events-none animate-pulse-border" />
-              )}
             </div>
           ))}
         </div>
-
+        
+        <p style={{ marginTop:'64px', fontSize:'0.75rem', color:'var(--color-text-tertiary)', fontFamily:'var(--font-mono)' }}>
+          * ALL LICENSES INCLUDE LIFETIME UPDATES AND CORE DOCUMENTATION.
+        </p>
       </div>
-
-      <style jsx>{`
-        @keyframes pulse-border {
-          0% { border-color: var(--glass-border); }
-          50% { border-color: var(--accent-cyan); }
-          100% { border-color: var(--glass-border); }
-        }
-        .animate-pulse-border {
-          animation: pulse-border 3s ease-in-out infinite;
-        }
-      `}</style>
+      
+      <WaitlistModal isOpen={modalOpen} onClose={() => setModalOpen(false)} tier={selectedTier} />
     </section>
-  );
+  )
 }

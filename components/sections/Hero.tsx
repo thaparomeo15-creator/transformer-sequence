@@ -1,61 +1,34 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { gsap } from '@/lib/gsap';
-import Button from '@/components/ui/button';
-
+'use client'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import Button from '@/components/ui/Button'
+import FrameSequence from '@/components/canvas/FrameSequence'
 export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-  const subheadlineRef = useRef<HTMLParagraphElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-
+  const contentRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    // Initial hidden state
-    gsap.set([headlineRef.current, subheadlineRef.current, ctaRef.current], { 
-      opacity: 0, 
-      y: 40 
-    });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero-container',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: true,
-      }
-    });
-
-    // Frame 20 equivalent (progress ~0.1)
-    tl.to(headlineRef.current, { opacity: 1, y: 0, duration: 0.8 }, 0.1)
-    // Frame 80 equivalent (progress ~0.4)
-    tl.to(subheadlineRef.current, { opacity: 1, y: 0, duration: 0.8 }, 0.4)
-    // Frame 140 equivalent (progress ~0.7)
-    tl.to(ctaRef.current, { opacity: 1, y: 0, scale: 1, duration: 0.8 }, 0.7)
-    // Frame 190 equivalent (progress ~0.95)
-    tl.to([headlineRef.current, subheadlineRef.current, ctaRef.current], { opacity: 0, duration: 0.5 }, 0.95);
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
-
+    if (!contentRef.current) return
+    const tl = gsap.timeline()
+    tl.from(contentRef.current.querySelector('h1'), { y: 60, opacity: 0, duration: 1.2, ease: 'power4.out' })
+      .from(contentRef.current.querySelector('p'), { y: 30, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.8')
+      .from(contentRef.current.querySelector('.cta-group'), { y: 20, opacity: 0, duration: 0.8, ease: 'power2.out' }, '-=0.6')
+  }, [])
   return (
-    <div className="absolute inset-0 z-[var(--z-content)] pointer-events-none">
-      <div className="h-screen flex flex-col items-center justify-center px-6 text-center">
-        <h1 ref={headlineRef} className="text-hero text-white mb-6">
-          TRANSFORMER <br /> SEQUENCE
-        </h1>
-        <p ref={subheadlineRef} className="text-body max-w-xl mb-10 opacity-60">
-          The world's first zero-latency scroll-driven canvas engine. <br />
-          Built for high-precision cinematic storytelling.
+    <section id="system" style={{ position:'relative', minHeight:'100vh', width:'100%' }}>
+      <div style={{ position:'absolute', top:0, left:0, width:'100%', zIndex:0 }}>
+        <FrameSequence />
+      </div>
+      
+      <div ref={contentRef} style={{ position:'relative', zIndex:10, height:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'0 32px', pointerEvents:'none' }}>
+        <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.75rem', letterSpacing:'0.3em', color:'var(--accent-cyan)', marginBottom:'24px', textTransform:'uppercase' }}>// INITIALIZING SEQUENCE</div>
+        <h1 className="text-hero" style={{ marginBottom:'32px', maxWidth:'1000px' }}>TRANSFORMER <br/> SEQUENCE</h1>
+        <p className="text-body" style={{ maxWidth:'600px', marginBottom:'48px', color:'var(--color-text-secondary)' }}>
+          The world's first zero-latency scroll-driven canvas engine.<br/>Built for high-precision cinematic storytelling.
         </p>
-        <div ref={ctaRef} className="pointer-events-auto">
-          <Button variant="primary" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>
-            INITIALIZE SYSTEM //
-          </Button>
+        <div className="cta-group" style={{ display:'flex', gap:'16px', pointerEvents:'auto' }}>
+          <Button variant="outline" data-cursor="cta" onClick={() => document.getElementById('problem')?.scrollIntoView({ behavior:'smooth' })}>EXPLORE ENGINE</Button>
+          <Button variant="ghost" data-cursor="hover" onClick={() => document.getElementById('specs')?.scrollIntoView({ behavior:'smooth' })}>TECHNICAL SPECS</Button>
         </div>
       </div>
-    </div>
-  );
+    </section>
+  )
 }

@@ -1,104 +1,55 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { gsap } from '@/lib/gsap';
-
+'use client'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+gsap.registerPlugin(ScrollTrigger)
 const SPECS = [
-  {
-    label: 'ENGINE // 01',
-    title: 'FRAME-BUFFER PIPELINE',
-    description: 'Off-thread Web Worker pre-decoding ensures that every pixel is ready before you even scroll. Zero flickering, zero delay.',
-    data: '204 FRAMES'
-  },
-  {
-    label: 'PERFORMANCE // 02',
-    title: 'BIT-MAPPED PRECISION',
-    description: 'Using hardware-accelerated Canvas rendering to bypass DOM paint cycles. 60FPS equivalent experience on any hardware.',
-    data: '0.0ms LAG'
-  },
-  {
-    label: 'AUTHORITY // 03',
-    title: 'VISUAL SOVEREIGNTY',
-    description: 'A dedicated design system built on Geist Mono and high-contrast glassmorphism. Absolute clarity in every interaction.',
-    data: '100% IMPACT'
-  }
-];
-
+  { label: 'RESOLUTION', value: '8K NATIVE', desc: 'Retina-ready frame rendering at 120fps.' },
+  { label: 'LATENCY', value: '0.00ms', desc: 'Zero-latency synchronization with the scroll thread.' },
+  { label: 'BUFFERING', value: 'WORKER-DRIVEN', desc: 'Off-thread image decoding prevents UI blocking.' },
+  { label: 'ADAPTIVE', value: 'DEVICE-AWARE', desc: 'Automatically scales quality based on hardware power.' }
+]
 export default function Specs() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
+  const containerRef = useRef<HTMLElement>(null)
   useEffect(() => {
-    gsap.fromTo(cardsRef.current, 
-      { opacity: 0, y: 60 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 80%',
-        }
+    if (!containerRef.current) return
+    const cards = containerRef.current.querySelectorAll('.spec-card')
+    gsap.from(cards, {
+      y: 40,
+      opacity: 0,
+      stagger: 0.15,
+      duration: 1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: 'top 80%',
       }
-    );
-  }, []);
-
+    })
+  }, [])
   return (
-    <section id="specs" ref={containerRef} className="py-[var(--space-7)] bg-[var(--color-bg)] relative">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+    <section id="specs" ref={containerRef} style={{ padding:'var(--space-7) 32px', background:'var(--color-bg-secondary)', borderTop:'1px solid var(--color-border)' }}>
+      <div style={{ maxWidth:'1200px', margin:'0 auto' }}>
+        <div className="text-label" style={{ marginBottom:'64px' }}>// TECHNICAL SPECIFICATIONS</div>
         
-        <div className="flex flex-col gap-4 mb-20">
-          <span className="text-label">SECTION 02 // SPECIFICATIONS</span>
-          <h2 className="text-section text-white max-w-2xl">
-            RUTHLESS ENGINEERING. <br />
-            <span className="opacity-40">CINEMATIC AUTHORITY.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'2px', background:'var(--color-border)' }}>
           {SPECS.map((spec, i) => (
-            <div 
-              key={spec.title}
-              ref={el => { cardsRef.current[i] = el; }}
-              data-cursor="hover"
-              className="group relative bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] p-10 rounded-sm hover:border-[var(--accent-cyan)] transition-colors duration-400 overflow-hidden"
-            >
-              <div className="relative z-10 flex flex-col h-full">
-                <span className="text-label mb-8 group-hover:text-[var(--accent-cyan)] transition-colors">{spec.label}</span>
-                <h3 className="text-2xl font-display font-bold text-white mb-6 tracking-tight">{spec.title}</h3>
-                <p className="text-body text-white/40 mb-12 flex-grow">
-                  {spec.description}
-                </p>
-                <div className="font-mono text-xl text-white tracking-widest border-t border-white/5 pt-6 flex justify-between items-center">
-                  <span className="text-xs opacity-20">DATA</span>
-                  <span>{spec.data}</span>
-                </div>
-              </div>
-
-              {/* Scanline Animation */}
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[var(--accent-cyan)] to-transparent opacity-0 group-hover:animate-scanline pointer-events-none" />
-              
-              {/* Background Glow */}
-              <div className="absolute inset-0 bg-[var(--accent-cyan)] opacity-0 group-hover:opacity-[0.03] blur-3xl transition-opacity duration-600 pointer-events-none" />
+            <div key={i} className="spec-card" style={{ background:'var(--color-bg-secondary)', padding:'48px', display:'flex', flexDirection:'column', gap:'24px' }}>
+              <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.6rem', color:'var(--color-text-tertiary)' }}>{spec.label}</div>
+              <div className="text-data" style={{ fontSize:'2rem', fontWeight:700, color:'white', letterSpacing:'-0.02em' }}>{spec.value}</div>
+              <p style={{ fontSize:'0.85rem', color:'var(--color-text-secondary)', lineHeight:1.6 }}>{spec.desc}</p>
             </div>
           ))}
         </div>
-
+        
+        <div style={{ marginTop:'var(--space-6)', display:'flex', justifyContent:'flex-end' }}>
+          <div style={{ maxWidth:'500px' }}>
+            <p className="text-body" style={{ fontStyle:'italic' }}>
+              "The architecture leverages Transferable Objects and OffscreenCanvas protocols to achieve a level of fluidity previously impossible in the browser environment."
+            </p>
+            <div style={{ marginTop:'24px', fontFamily:'var(--font-mono)', fontSize:'0.65rem', color:'var(--accent-cyan)' }}>// DR. ARIS THORNE, LEAD ARCHITECT</div>
+          </div>
+        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes scanline {
-          0% { top: -10%; opacity: 0; }
-          20% { opacity: 0.5; }
-          80% { opacity: 0.5; }
-          100% { top: 110%; opacity: 0; }
-        }
-        .animate-scanline {
-          animation: scanline 1.5s linear infinite;
-        }
-      `}</style>
     </section>
-  );
+  )
 }

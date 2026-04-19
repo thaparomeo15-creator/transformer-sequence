@@ -1,165 +1,92 @@
-'use client';
-
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { gsap } from '@/lib/gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-const TOTAL_FRAMES = 204;
-const FRAME_PATH = '/frames';
-
-export default function FrameSequence() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const bitmapsRef = useRef<ImageBitmap[]>([]);
-  const [progress, setProgress] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [currentFrame, setCurrentFrame] = useState(0);
-
-  // Resize logic
-  const handleResize = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const { width, height } = canvas.getBoundingClientRect();
-    
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-      renderFrame(currentFrame);
-    }
-  }, [currentFrame]);
-
-  const renderFrame = (index: number) => {
-    const canvas = canvasRef.current;
-    const bitmaps = bitmapsRef.current;
-    if (!canvas || !bitmaps[index]) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const { width, height } = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, width, height);
-    
-    const bitmap = bitmaps[index];
-    const imgRatio = bitmap.width / bitmap.height;
-    const canvasRatio = width / height;
-
-    let drawW, drawH, drawX, drawY;
-
-    if (imgRatio > canvasRatio) {
-      drawH = height;
-      drawW = height * imgRatio;
-      drawX = (width - drawW) / 2;
-      drawY = 0;
-    } else {
-      drawW = width;
-      drawH = width / imgRatio;
-      drawX = 0;
-      drawY = (height - drawH) / 2;
-    }
-
-    ctx.drawImage(bitmap, drawX, drawY, drawW, drawH);
-  };
-
+'use client'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+gsap.registerPlugin(ScrollTrigger)
+interface Props { frameCount?: number; basePath?: string }
+export default function FrameSequence({ frameCount = 204, basePath = '/frames/' }: Props) {
+  const canvasRef = useRef(null)
+  const frameMap = useRef<Map<number, ImageBitmap>>(new Map())
+  const [progress, setProgress] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [hasFrames, setHasFrames] = useState(false)
+  const [currentFrame, setCurrentFrame] = useState(1)
   useEffect(() => {
-    const worker = new Worker(new URL('./frameWorker.ts', import.meta.url));
-    
-    const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
-      const frameNum = (i + 1).toString().padStart(3, '0');
-      // Fallback to placeholder if local frames don't exist yet
-      return `${FRAME_PATH}/${frameNum}.webp`;
-    });
-
-    worker.postMessage({ urls });
-
-    worker.onmessage = (e) => {
-      const data = e.data;
-      if (data.type === 'PROGRESS') {
-        setProgress((data.loaded / data.total) * 100);
-      } else if (data.type === 'COMPLETE') {
-        bitmapsRef.current = data.bitmaps;
-        setIsLoaded(true);
-        renderFrame(0);
+    const checkFrames = async () => {
+      try {
+        const res = await fetch(`${basePath}001.webp`, { method: 'HEAD' })
+        if (res.ok) { setHasFrames(true); loadFrames() }
+        else { setLoading(false) }
+      } catch { setLoading(false) }
+    }
+    const loadFrames = () => {
+      const isMobile = window.innerWidth < 768
+      const step = isMobile ? 3 : 1
+      const urls = Array.from({ length: Math.ceil(frameCount / step) }, (_,i) => `${basePath}${String(i*step+1).padStart(3,'0')}.webp`)
+      const worker = new Worker(new URL('./frameWorker.ts', import.meta.url))
+      worker.postMessage({ urls })
+      worker.onmessage = (e) => {
+        if (e.data.type === 'PROGRESS') { setProgress(Math.round((e.data.loaded/e.data.total)*100)) }
+        if (e.data.type === 'COMPLETE') {
+          e.data.bitmaps.forEach((b: ImageBitmap, i: number) => { if (b) frameMap.current.set(i*step+1, b) })
+          setLoading(false)
+          setupScrollTrigger()
+          worker.terminate()
+        }
       }
-    };
-
-    return () => worker.terminate();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded || !containerRef.current) return;
-
-    const trigger = ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: true,
-      onUpdate: (self) => {
-        const frameIdx = Math.floor(self.progress * (TOTAL_FRAMES - 1));
-        setCurrentFrame(frameIdx);
-        renderFrame(frameIdx);
-      },
-    });
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => {
-      trigger.kill();
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [isLoaded, handleResize]);
-
+    }
+    const drawFrame = (index: number) => {
+      const canvas = canvasRef.current as HTMLCanvasElement | null
+      if (!canvas) return
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      const dpr = window.devicePixelRatio || 1
+      canvas.width = window.innerWidth * dpr
+      canvas.height = window.innerHeight * dpr
+      ctx.scale(dpr, dpr)
+      const bitmap = frameMap.current.get(index)
+      if (bitmap) ctx.drawImage(bitmap, 0, 0, window.innerWidth, window.innerHeight)
+    }
+    const setupScrollTrigger = () => {
+      ScrollTrigger.create({
+        trigger: '#frame-container',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0,
+        onUpdate: (self) => {
+          const index = Math.min(frameCount, Math.max(1, Math.round(self.progress * (frameCount-1)) + 1))
+          setCurrentFrame(index)
+          drawFrame(index)
+          if (index >= frameCount) window.dispatchEvent(new CustomEvent('sequenceComplete', { detail: { frames: frameCount } }))
+        }
+      })
+    }
+    checkFrames()
+    return () => { ScrollTrigger.getAll().forEach(t => t.kill()) }
+  }, [frameCount, basePath])
   return (
-    <div ref={containerRef} className="relative w-full h-[600vh] bg-black">
-      <div className="sticky top-0 w-full h-screen overflow-hidden">
-        {/* LCP Fallback Placeholder */}
-        {!isLoaded && (
-          <img 
-            src="/frames/001.webp" 
-            alt="Sequence Loading" 
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              // Fallback to a placeholder if the frame doesn't exist yet
-              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1920&fm=webp&auto=format&fit=crop';
-            }}
-          />
+    <div id="frame-container" style={{ height:'600vh', position:'relative', background:'var(--color-bg)' }}>
+      <div style={{ position:'sticky', top:0, height:'100vh', width:'100%', overflow:'hidden' }}>
+
+        {!hasFrames && !loading && (
+          <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'white', textAlign:'center', padding:'20px' }}>
+            <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.75rem', letterSpacing:'0.2em', opacity:0.4, marginBottom:'12px' }}>// FRAME SEQUENCE READY</div>
+            <div style={{ fontSize:'1.5rem', fontWeight:600, maxWidth:'400px', lineHeight:1.4 }}>ADD 204 WEBP FRAMES TO<br/>/public/frames/001.webp → 204.webp</div>
+          </div>
         )}
         
-        <canvas 
-          ref={canvasRef} 
-          className="relative w-full h-full block z-[var(--z-canvas)]"
-          style={{ display: isLoaded ? 'block' : 'none' }}
-          role="img"
-          aria-label="Cinematic product animation showing 204 frames of the Transformer Sequence engine"
-        />
-
-        {/* Loading Bar */}
-        {!isLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-[50]">
-            <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-[var(--accent-cyan)] transition-all duration-300" 
-                style={{ width: `${progress}%` }} 
-              />
+        {loading && hasFrames && (
+          <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', zIndex:10 }}>
+            <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.65rem', letterSpacing:'0.2em', color:'var(--accent-cyan)', marginBottom:'24px' }}>// BUFFERING SEQUENCE</div>
+            <div style={{ width:'200px', height:'1px', background:'rgba(255,255,255,0.1)', position:'relative' }}>
+              <div style={{ position:'absolute', top:0, left:0, height:'100%', width:`${progress}%`, background:'var(--accent-cyan)', transition:'width 0.3s' }} />
             </div>
-            <div className="mt-4 font-mono text-[0.65rem] text-white/40 tracking-[0.2em] uppercase">
-              Initializing Engine · {Math.round(progress)}%
-            </div>
+            <div style={{ marginTop:'12px', fontFamily:'var(--font-mono)', fontSize:'0.65rem', color:'white', opacity:0.4 }}>{progress}%</div>
           </div>
         )}
-
-        {/* HUD: Frame Counter */}
-        {isLoaded && (
-          <div className="absolute bottom-10 right-10 z-[20] font-mono text-[0.65rem] text-white/40 tracking-[0.2em] uppercase backdrop-blur-md bg-black/20 border border-white/10 px-4 py-2 rounded-sm">
-            FRAME · {currentFrame.toString().padStart(3, '0')} / 204
-          </div>
-        )}
+        
+        <canvas ref={canvasRef} style={{ width:'100%', height:'100%', display:'block' }} />
       </div>
     </div>
-  );
+  )
 }

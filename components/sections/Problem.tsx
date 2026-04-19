@@ -1,104 +1,48 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { gsap } from '@/lib/gsap';
-
+'use client'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+gsap.registerPlugin(ScrollTrigger)
 export default function Problem() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const stat1Ref = useRef<HTMLSpanElement>(null);
-  const stat2Ref = useRef<HTMLSpanElement>(null);
-
+  const sectionRef = useRef<HTMLElement>(null)
   useEffect(() => {
-    // Parallax logic
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 2,
-      }
-    });
-
-    tl.to(leftRef.current, { y: -100, ease: 'none' }, 0);
-    tl.to(rightRef.current, { y: 100, ease: 'none' }, 0);
-
-    // Count up animation
-    const stats = [
-      { ref: stat1Ref, end: 145, suffix: 'ms' },
-      { ref: stat2Ref, end: 0, suffix: 'ms' },
-    ];
-
-    stats.forEach((stat) => {
-      gsap.to({ val: 0 }, {
-        val: stat.end,
-        duration: 2,
-        ease: 'power3.out',
+    if (!sectionRef.current) return
+    const lines = sectionRef.current.querySelectorAll('.reveal-line')
+    lines.forEach((line) => {
+      gsap.from(line, {
+        opacity: 0.1,
+        y: 20,
+        duration: 1,
         scrollTrigger: {
-          trigger: stat.ref.current,
+          trigger: line,
           start: 'top 85%',
-        },
-        onUpdate: function() {
-          if (stat.ref.current) {
-            stat.ref.current.textContent = Math.round(this.targets()[0].val).toString();
-          }
+          end: 'top 50%',
+          scrub: true,
         }
-      });
-    });
-
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, []);
-
+      })
+    })
+  }, [])
   return (
-    <section ref={sectionRef} id="problem" className="relative min-h-screen bg-[var(--color-bg-secondary)] py-[var(--space-7)] overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <section id="problem" ref={sectionRef} style={{ padding:'var(--space-7) 32px', background:'var(--color-bg)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ maxWidth:'1200px', width:'100%' }}>
+        <div className="text-label" style={{ marginBottom:'48px' }}>// THE FRICTION</div>
+        <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+          <h2 className="text-section reveal-line" style={{ maxWidth:'900px' }}>Standard web video is static.</h2>
+          <h2 className="text-section reveal-line" style={{ maxWidth:'900px', color:'var(--color-text-tertiary)' }}>Lottie animations are expensive.</h2>
+          <h2 className="text-section reveal-line" style={{ maxWidth:'900px' }}>Traditional canvas engines are heavy.</h2>
+        </div>
         
-        {/* Left Panel: The Friction */}
-        <div ref={leftRef} className="flex flex-col gap-8">
-          <span className="text-label">SECTION 01 // ARCHITECTURE</span>
-          <h2 className="text-section text-white">
-            THE FRICTION <br /> 
-            <span className="opacity-40">OF STANDARD WEB.</span>
-          </h2>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-end gap-4">
-              <span ref={stat1Ref} className="text-[clamp(4rem,10vw,8rem)] font-display font-bold leading-none text-white">0</span>
-              <span className="text-2xl font-mono text-white/20 mb-4">ms</span>
-            </div>
-            <p className="text-body max-w-md">
-              Average CSS-driven animation latency. High CPU usage, frame drops, and fragmented storytelling. 
-              The standard web is a compromise.
-            </p>
+        <div style={{ marginTop:'var(--space-6)', display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:'48px' }}>
+          <div className="reveal-line">
+            <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.6rem', color:'var(--accent-cyan)', marginBottom:'16px' }}>01 / THE LAG</div>
+            <p className="text-body">Frames drop when the main thread is blocked. User experience suffers when the connection between scroll and visual is severed.</p>
+          </div>
+          <div className="reveal-line">
+            <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.6rem', color:'var(--accent-cyan)', marginBottom:'16px' }}>02 / THE WEIGHT</div>
+            <p className="text-body">High-resolution assets shouldn't mean high-latency loads. Traditional engines force users to wait for the entire sequence.</p>
           </div>
         </div>
-
-        {/* Right Panel: The Solution */}
-        <div ref={rightRef} className="flex flex-col gap-8 md:pt-40">
-          <h2 className="text-section text-[var(--accent-cyan)]">
-            ZERO LATENCY. <br /> 
-            <span className="text-white">PURE PERFORMANCE.</span>
-          </h2>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-end gap-4">
-              <span ref={stat2Ref} className="text-[clamp(4rem,10vw,8rem)] font-display font-bold leading-none text-[var(--accent-cyan)]">0</span>
-              <span className="text-2xl font-mono text-[var(--accent-cyan)] opacity-20 mb-4">ms</span>
-            </div>
-            <p className="text-body max-w-md">
-              Transformer Sequence bypasses the DOM layer entirely. 
-              Frame-by-frame precision, locked to the user's scroll. Zero lag. Infinite impact.
-            </p>
-          </div>
-        </div>
-
       </div>
-      
-      {/* Background HUD elements */}
-      <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/5 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/5 rounded-full pointer-events-none" />
     </section>
-  );
+  )
 }

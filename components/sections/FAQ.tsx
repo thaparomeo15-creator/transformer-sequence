@@ -1,93 +1,37 @@
-'use client';
-
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import dynamic from 'next/dynamic';
-
-const LottiePlayer = dynamic(() => import('@/components/ui/LottiePlayer'), { ssr: false });
-
+'use client'
+import { useState } from 'react'
 const FAQS = [
-  {
-    q: 'How does the zero-latency engine work?',
-    a: 'We use an off-thread Web Worker to pre-decode image frames into Bitmaps. When you scroll, the engine simply draws the pre-decoded bitmaps to a Canvas element, bypassing the DOM entirely for maximum performance.'
-  },
-  {
-    q: 'Is it compatible with all browsers?',
-    a: 'Yes. The engine is built on standard HTML5 Canvas and Web Workers. For older browsers or low-end devices, we automatically fallback to a simplified sequence or static high-res assets.'
-  },
-  {
-    q: 'Can I use custom frame sequences?',
-    a: 'Absolutely. The license includes the full build pipeline. You can inject your own frames, adjust the buffering strategy, and customize the scroll-interpolation logic.'
-  },
-  {
-    q: 'What is the "Commercial License"?',
-    a: 'The Commercial License allows you to use the Transformer Sequence engine on one production project with unlimited traffic. It includes lifetime updates and technical support.'
-  }
-];
-
-function FAQItem({ q, a, index }: { q: string, a: string, index: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b border-[var(--color-border)] last:border-none">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        data-cursor="hover"
-        className="w-full py-8 flex items-center justify-between text-left group"
-      >
-        <span className="text-xl md:text-2xl font-display font-medium text-white/80 group-hover:text-white transition-colors">
-          {q}
-        </span>
-        <div className={`w-6 h-6 transition-transform duration-600 ease-[var(--ease-out-expo)] ${isOpen ? 'rotate-180' : ''}`}>
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-[var(--accent-cyan)]">
-             <path d="M6 9l6 6 6-6" />
-           </svg>
-        </div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
-          >
-            <p className="pb-8 text-body max-w-2xl">
-              {a}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
+  { q: 'Is there a limit to the number of frames?', a: 'The Personal license supports up to 204 frames. The Professional license allows for unlimited frame sequences, restricted only by the user\'s hardware capabilities.' },
+  { q: 'Can I use this with React and Next.js?', a: 'Yes, Transformer Sequence is built specifically for the Next.js ecosystem, though the core canvas engine can be ported to any modern JavaScript framework.' },
+  { q: 'What asset formats are supported?', a: 'We recommend WebP for the best balance of quality and performance, but the engine supports any standard web-compatible image format (AVIF, PNG, JPG).' },
+  { q: 'How does the pricing work?', a: 'Pricing is a one-time license fee per project. Agencies can contact us for multi-project enterprise licensing.' }
+]
 export default function FAQ() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
   return (
-    <section id="faq" className="py-[var(--space-7)] bg-[var(--color-bg-secondary)]">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-20">
-          <div className="flex flex-col gap-6">
-            <span className="text-label">SECTION 05 // INTEL</span>
-            <h2 className="text-section text-white">
-              COMMON <br />
-              <span className="opacity-40">ENQUIRIES.</span>
-            </h2>
-            <p className="text-body max-w-sm">
-              Detailed technical data on the deployment and integration of the Transformer Sequence system.
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            {FAQS.map((faq, i) => (
-              <FAQItem key={faq.q} q={faq.q} a={faq.a} index={i} />
-            ))}
-          </div>
+    <section id="faq" style={{ padding:'var(--space-7) 32px', background:'var(--color-bg)' }}>
+      <div style={{ maxWidth:'800px', margin:'0 auto' }}>
+        <div className="text-label" style={{ marginBottom:'48px', textAlign:'center' }}>// COMMON INQUIRIES</div>
+        <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
+          {FAQS.map((faq, i) => (
+            <div key={i} style={{ border:'1px solid var(--glass-border)', borderRadius:'var(--radius-md)', overflow:'hidden', transition:'border-color 0.3s' }}>
+              <button 
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                data-cursor="hover"
+                style={{ width:'100%', padding:'24px 32px', background:'none', border:'none', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', textAlign:'left' }}
+              >
+                <span style={{ fontSize:'1rem', fontWeight:600, color:'white' }}>{faq.q}</span>
+                <span style={{ color:'var(--accent-cyan)', fontSize:'1.2rem', transition:'transform 0.4s' }} style={{ transform: openIndex === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
+              </button>
+              <div style={{ maxHeight: openIndex === i ? '200px' : '0', overflow:'hidden', transition:'max-height 0.4s var(--ease-out-expo)' }}>
+                <div style={{ padding:'0 32px 32px 32px', color:'var(--color-text-secondary)', fontSize:'0.9rem', lineHeight:1.7 }}>
+                  {faq.a}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
-  );
+  )
 }

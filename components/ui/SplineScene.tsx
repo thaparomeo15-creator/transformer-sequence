@@ -1,42 +1,26 @@
-'use client';
-
-import Spline from '@splinetool/react-spline';
-import { useState, useEffect } from 'react';
-
-interface SplineSceneProps {
-  sceneUrl: string;
-}
-
-export default function SplineScene({ sceneUrl }: SplineSceneProps) {
-  const [useImage, setUseImage] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
+'use client'
+import { useState, useEffect, Suspense } from 'react'
+import dynamic from 'next/dynamic'
+const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false })
+interface Props { sceneUrl?: string }
+export default function SplineScene({ sceneUrl = '' }: Props) {
+  const [useFallback, setUseFallback] = useState(false)
   useEffect(() => {
-    const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency < 4;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    if (isLowEnd || isMobile) setUseImage(true);
-  }, []);
-
-  if (useImage) {
-    return (
-      <img 
-        src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1200&fm=webp&auto=format&fit=crop" 
-        alt="Interactive 3D product model fallback" 
-        className="w-full h-full object-cover rounded-lg opacity-40 grayscale"
-        role="img"
-        aria-label="Interactive 3D product model static fallback"
-      />
-    );
-  }
-
-  return (
-    <div className={`w-full h-full transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      <Spline 
-        scene={sceneUrl} 
-        onLoad={() => setIsLoaded(true)}
-        aria-label="Interactive 3D product model"
-        role="img"
-      />
+    const isLowEnd = navigator.hardwareConcurrency < 4
+    const isMobile = window.innerWidth < 768
+    if (isLowEnd || isMobile || !sceneUrl) setUseFallback(true)
+  }, [sceneUrl])
+  if (useFallback || !sceneUrl) return (
+    <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', border:'1px solid var(--glass-border)', background:'rgba(255,255,255,0.02)', borderRadius:'var(--radius-lg)' }}>
+      <div style={{ fontFamily:'var(--font-mono)', fontSize:'0.65rem', letterSpacing:'0.2em', opacity:0.3, marginBottom:'12px' }}>// 3D ENGINE READY</div>
+      <div style={{ color:'var(--color-text-tertiary)', fontSize:'0.75rem', textAlign:'center', maxWidth:'280px', lineHeight:1.6 }}>ADD YOUR SPLINE SCENE URL<br/>TO SplineScene COMPONENT PROPS</div>
     </div>
-  );
+  )
+  return (
+    <div style={{ width:'100%', height:'100%', position:'relative' }}>
+      <Suspense fallback={<div style={{ width:'100%', height:'100%', background:'rgba(255,255,255,0.02)' }} />}>
+        <Spline scene={sceneUrl} onError={() => setUseFallback(true)} />
+      </Suspense>
+    </div>
+  )
 }

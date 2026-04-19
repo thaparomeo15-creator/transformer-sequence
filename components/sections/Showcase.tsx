@@ -1,62 +1,36 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-
-const SplineScene = dynamic(() => import('@/components/ui/SplineScene'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-black/20 border border-white/5 rounded-lg animate-pulse">
-      <span className="font-mono text-[0.65rem] text-white/20 tracking-widest">INITIALIZING 3D ASSETS...</span>
-    </div>
-  ),
-});
-
+'use client'
+import { useEffect, useRef } from 'react'
+import SplineScene from '@/components/ui/SplineScene'
 export default function Showcase() {
   return (
-    <section id="showcase" className="py-[var(--space-7)] bg-[var(--color-bg-secondary)] relative overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          
-          <div className="flex flex-col gap-8 order-2 lg:order-1">
-            <span className="text-label">SECTION 03 // 3D SHOWCASE</span>
-            <h2 className="text-section text-white">
-              TACTILE <br />
-              <span className="opacity-40">INTERACTION.</span>
-            </h2>
-            <p className="text-body max-w-md">
-              Beyond the scroll. Interact with the core chassis in real-time. 
-              Built with hardware-accelerated WebGL to ensure responsiveness across all devices.
+    <section id="showcase" style={{ padding:'var(--space-7) 32px', background:'var(--color-bg)' }}>
+      <div style={{ maxWidth:'1200px', margin:'0 auto' }}>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'64px', alignItems:'center' }}>
+          <div style={{ flex:'1 1 400px' }}>
+            <div className="text-label" style={{ marginBottom:'32px' }}>// SYSTEM SHOWCASE</div>
+            <h2 className="text-section" style={{ marginBottom:'40px' }}>Architecture built for the next decade of the web.</h2>
+            <p className="text-body" style={{ marginBottom:'32px' }}>
+              We've abstracted the complexity of frame management into a single, high-performance hook. Integrate cinematic sequences into your product with three lines of code.
             </p>
-            
-            <div className="flex flex-col gap-4 mt-8">
-              <div className="flex items-center gap-4 text-xs font-mono text-white/40">
-                <span className="w-1.5 h-1.5 bg-[var(--accent-cyan)] rounded-full animate-pulse" />
-                LIVE RENDER ENGINE ACTIVE
-              </div>
-              <div className="flex items-center gap-4 text-xs font-mono text-white/40">
-                <span className="w-1.5 h-1.5 bg-white/20 rounded-full" />
-                MULTI-THREADED PHYSICS
-              </div>
+            <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:'20px' }}>
+              {['Auto-optimized assets', 'Dynamic viewport scaling', 'Integrated audio spatialization'].map((item, i) => (
+                <li key={i} style={{ display:'flex', alignItems:'center', gap:'16px', fontFamily:'var(--font-mono)', fontSize:'0.75rem', color:'white' }}>
+                  <span style={{ color:'var(--accent-cyan)' }}>→</span> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div style={{ flex:'1 1 500px', height:'600px', position:'relative' }}>
+            <div style={{ position:'absolute', inset:0, border:'1px solid var(--glass-border)', borderRadius:'var(--radius-lg)', overflow:'hidden' }}>
+              <SplineScene />
             </div>
+            {/* Decorative elements */}
+            <div style={{ position:'absolute', top:'-20px', right:'-20px', width:'100px', height:'100px', borderRight:'1px solid var(--accent-cyan)', borderTop:'1px solid var(--accent-cyan)', opacity:0.3 }} />
+            <div style={{ position:'absolute', bottom:'-20px', left:'-20px', width:'100px', height:'100px', borderLeft:'1px solid var(--accent-cyan)', borderBottom:'1px solid var(--accent-cyan)', opacity:0.3 }} />
           </div>
-
-          <div className="relative aspect-square w-full order-1 lg:order-2" data-cursor="drag">
-            <Suspense fallback={null}>
-              <SplineScene sceneUrl="https://prod.spline.design/6Wq1Q7YRyS7S06iV/scene.splinecode" />
-            </Suspense>
-
-            {/* Corner Markers */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/10" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-white/10" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-white/10" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/10" />
-          </div>
-
         </div>
-
       </div>
     </section>
-  );
+  )
 }

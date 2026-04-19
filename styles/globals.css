@@ -1,92 +1,15 @@
-@import "./tokens.css";
-
-/* Resets */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
-  overflow-x: hidden;
-  font-family: var(--font-display);
-}
-
-/* Typography Scale */
-.text-hero {
-  font-family: var(--font-display);
-  font-size: clamp(3.5rem, 9vw, 8rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 0.92;
-  font-feature-settings: "ss01","cv01","cv02";
-}
-
-.text-section {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-
-.text-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-}
-
-.text-body {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--color-text-secondary);
-}
-
-.text-data {
-  font-family: var(--font-mono);
-  font-feature-settings: "tnum";
-}
-
-/* Custom Cursor Hide */
-* {
-  cursor: none !important;
-}
-
-@media (pointer: coarse) {
-  * {
-    cursor: auto !important;
-  }
-}
-
-/* Scrollbar Hide */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Lenis Base */
-html.lenis {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
+@import './tokens.css';
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: auto; }
+html, body { background: var(--color-bg); color: var(--color-text-primary); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 2px; }
+::selection { background: rgba(0,229,255,0.25); }
+:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+.text-hero { font-family: var(--font-display); font-size: clamp(3.5rem,9vw,8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 0.92; }
+.text-section { font-family: var(--font-display); font-size: clamp(2rem,5vw,4.5rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+.text-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-tertiary); }
+.text-body { font-size: 1rem; line-height: 1.7; color: var(--color-text-secondary); }
+.text-data { font-family: var(--font-mono); font-feature-settings: "tnum"; }
