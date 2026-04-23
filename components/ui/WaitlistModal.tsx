@@ -22,7 +22,10 @@ export default function WaitlistModal({ isOpen, onClose, tier }: Props) {
         setMessage('You are already on the list! We have your transmission saved.') 
       }
       else if (data.success) { setState('success'); setReferralCode(data.referralCode) }
-      else { setState('error'); setMessage('// TRANSMISSION FAILED — TRY AGAIN') }
+      else { 
+        setState('error'); 
+        setMessage(data.details ? `// FAILED: ${data.details.toUpperCase()}` : (data.error || '// TRANSMISSION FAILED — TRY AGAIN'));
+      }
     } catch { setState('error'); setMessage('// CONNECTION ERROR — TRY AGAIN') }
   }
   return (

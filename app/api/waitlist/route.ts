@@ -61,7 +61,12 @@ export async function POST(request: Request) {
         );
       }
       return Response.json(
-        { error: "Database error", details: error.message },
+        { 
+          success: false,
+          error: "Transmission Failed", 
+          details: error.message,
+          code: error.code
+        },
         { status: 500 }
       );
     }
